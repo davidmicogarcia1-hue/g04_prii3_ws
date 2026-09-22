@@ -332,11 +332,15 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
 
-    nodo.parar()
+    finally:
 
-    nodo.destroy_node()
+        if rclpy.ok():
+            nodo.parar()
 
-    rclpy.shutdown()
+        nodo.destroy_node()
+
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':

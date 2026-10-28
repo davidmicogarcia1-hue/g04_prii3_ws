@@ -2,7 +2,8 @@ import rclpy
 from rclpy.node import Node
 
 from geometry_msgs.msg import Twist
-from std_srvs.srv import Trigger, Empty
+from std_srvs.srv import Trigger
+from std_srvs.srv import Empty
 
 
 class DrawNumber(Node):
@@ -10,141 +11,100 @@ class DrawNumber(Node):
     def __init__(self):
         super().__init__('draw_number')
 
-        # Publicador para mover el TurtleBot
-        self.pub = self.create_publisher(
-            Twist,
-            '/cmd_vel',
-            10
-        )
+        self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
-        # Servicio de Gazebo para devolver el robot
-        # a su posición inicial
-        self.reset_client = self.create_client(
-            Empty,
-            '/reset_world'
-        )
+        self.create_service(Trigger, '/detener_dibujo', self.detener)
+        self.create_service(Trigger, '/reanudar_dibujo', self.reanudar)
+        self.create_service(Trigger, '/reiniciar_dibujo', self.reiniciar)
 
-        # Servicios de nuestro nodo
-        self.create_service(
-            Trigger,
-            'detener_dibujo',
-            self.detener
-        )
+        self.reset = self.create_client(Empty, '/reset_world')
 
-        self.create_service(
-            Trigger,
-            'reanudar_dibujo',
-            self.reanudar
-        )
+        # velocidad lineal, velocidad angular, tiempo
+        self.movimientos = [
 
-        self.create_service(
-            Trigger,
-            'reiniciar_dibujo',
-            self.reiniciar
-        )
+            # 0
+            (0.30, 0.80, 7.85),
 
-        self.pausado = False
-        self.paso = 0
-        self.tiempo = 0.0
-        self.reset_future = None
+            # Separación entre 0 y 4
+            (0.30, 0.00, 2.50),
 
-        # Cada acción:
-        # ('move', velocidad_lineal, velocidad_angular, tiempo)
+            # =====================
+            #       4 ABIERTO
+            #
+            #   |       |
+            #   |_______|
+            #           |
+            #           |
+            # =====================
 
-        self.acciones = [
+            # Girar 90º izquierda
+            (0.00, 0.80, 1.96),
 
-            # ======================
-            # NUMERO 0
-            # ======================
+            # Subir izquierda 0.50 m aprox.
+            (0.30, 0.00, 1.67),
 
-            # Círculo completo
-            ('move', 0.30, 0.80, 7.85),
+            # Media vuelta
+            (0.00, 0.80, 3.93),
 
-            # ======================
-            # IR HACIA EL 4
-            # ======================
+            # Volver al cruce
+            (0.30, 0.00, 1.67),
 
-            ('move', 0.30, 0.00, 4.00),
+            # Girar hacia la derecha del dibujo
+            (0.00, 0.80, 1.96),
 
-            # ======================
-            # NUMERO 4
-            # ======================
+            # Barra horizontal 0.80 m aprox.
+            (0.30, 0.00, 2.67),
 
-            # Girar 45 grados
-            ('move', 0.00, 0.80, 0.98),
+            # Girar hacia arriba
+            (0.00, 0.80, 1.96),
 
-            # Diagonal
-            ('move', 0.30, 0.00, 2.67),
+            # Subir pata derecha
+            (0.30, 0.00, 1.67),
 
-            # Girar -135 grados
-            ('move', 0.00, -0.80, 2.95),
+            # Media vuelta
+            (0.00, 0.80, 3.93),
 
-            # Palo vertical
-            ('move', 0.30, 0.00, 4.00),
-
-            # Girar 180 grados
-            ('move', 0.00, 0.80, 3.93),
-
-            # Subir hasta la mitad
-            ('move', 0.30, 0.00, 2.00),
-
-            # Girar 90 grados
-            ('move', 0.00, 0.80, 1.96),
-
-            # Barra horizontal
-            ('move', 0.30, 0.00, 2.67),
+            # Bajar y prolongar la pata derecha
+            (0.30, 0.00, 3.33)
         ]
 
-        # Ejecutar control cada 0.05 segundos
-        self.timer = self.create_timer(
-            0.05,
-            self.control
-        )
+        self.movimiento = 0
+        self.tiempo = 0.0
+        self.pausado = False
 
+        self.timer = self.create_timer(0.05, self.timer_callback)
 
-    def control(self):
+    def timer_callback(self):
 
-        # Esperar mientras Gazebo se reinicia
-        if self.reset_future is not None:
-
-            if not self.reset_future.done():
-                return
-
-            self.reset_future = None
-
-        # Si está pausado, no mover
         if self.pausado:
             return
 
-        # Si hemos terminado
-        if self.paso >= len(self.acciones):
-
+        if self.movimiento >= len(self.movimientos):
             self.parar()
             return
 
-        accion = self.acciones[self.paso]
-
-        velocidad_lineal = accion[1]
-        velocidad_angular = accion[2]
-        duracion = accion[3]
+        lineal, angular, duracion = self.movimientos[self.movimiento]
 
         msg = Twist()
-
-        msg.linear.x = velocidad_lineal
-        msg.angular.z = velocidad_angular
+        msg.linear.x = lineal
+        msg.angular.z = angular
 
         self.pub.publish(msg)
 
         self.tiempo += 0.05
 
-        # Pasar a la siguiente acción
         if self.tiempo >= duracion:
-
             self.parar()
-
+            self.movimiento += 1
             self.tiempo = 0.0
-            self.paso += 1
 
+    def parar(self):
+
+        msg = Twist()
+        msg.linear.x = 0.0
+        msg.angular.z = 0.0
+
+        self.pub.publish(msg)
 
     def detener(self, request, response):
 
@@ -156,7 +116,6 @@ class DrawNumber(Node):
 
         return response
 
-
     def reanudar(self, request, response):
 
         self.pausado = False
@@ -166,19 +125,15 @@ class DrawNumber(Node):
 
         return response
 
-
     def reiniciar(self, request, response):
 
         self.parar()
 
-        self.pausado = False
-        self.paso = 0
+        self.movimiento = 0
         self.tiempo = 0.0
+        self.pausado = False
 
-        # Devolver robot a posición inicial
-        self.reset_future = self.reset_client.call_async(
-            Empty.Request()
-        )
+        self.reset.call_async(Empty.Request())
 
         response.success = True
         response.message = 'Dibujo reiniciado'
@@ -186,37 +141,21 @@ class DrawNumber(Node):
         return response
 
 
-    def parar(self):
-
-        msg = Twist()
-
-        msg.linear.x = 0.0
-        msg.angular.z = 0.0
-
-        self.pub.publish(msg)
-
-
 def main(args=None):
 
     rclpy.init(args=args)
 
-    nodo = DrawNumber()
+    node = DrawNumber()
 
     try:
-        rclpy.spin(nodo)
+        rclpy.spin(node)
 
     except KeyboardInterrupt:
         pass
 
-    finally:
-
-        if rclpy.ok():
-            nodo.parar()
-
-        nodo.destroy_node()
-
-        if rclpy.ok():
-            rclpy.shutdown()
+    node.parar()
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

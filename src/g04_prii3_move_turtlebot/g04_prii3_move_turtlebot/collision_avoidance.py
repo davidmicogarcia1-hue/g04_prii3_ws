@@ -10,11 +10,7 @@ class CollisionAvoidance(Node):
     def __init__(self):
         super().__init__('collision_avoidance')
 
-        self.pub = self.create_publisher(
-            Twist,
-            '/cmd_vel',
-            10
-        )
+        self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
         self.sub = self.create_subscription(
             LaserScan,
@@ -25,24 +21,34 @@ class CollisionAvoidance(Node):
 
         # velocidad lineal, velocidad angular, tiempo
         self.movimientos = [
+
             # 0
             (0.30, 0.80, 7.85),
 
             # separación
-            (0.30, 0.00, 4.00),
+            (0.30, 0.00, 2.50),
 
-            # 4
-            (0.00, 0.80, 0.98),
+            # 4 abierto
+
+            # subir izquierda
+            (0.00, 0.80, 1.96),
+            (0.30, 0.00, 1.67),
+
+            # volver abajo
+            (0.00, 0.80, 3.93),
+            (0.30, 0.00, 1.67),
+
+            # barra horizontal
+            (0.00, 0.80, 1.96),
             (0.30, 0.00, 2.67),
 
-            (0.00, -0.80, 2.95),
-            (0.30, 0.00, 4.00),
-
-            (0.00, 0.80, 3.93),
-            (0.30, 0.00, 2.00),
-
+            # subir derecha
             (0.00, 0.80, 1.96),
-            (0.30, 0.00, 2.67)
+            (0.30, 0.00, 1.67),
+
+            # bajar derecha y continuar
+            (0.00, 0.80, 3.93),
+            (0.30, 0.00, 3.33)
         ]
 
         self.movimiento = 0
@@ -64,17 +70,17 @@ class CollisionAvoidance(Node):
 
         for distancia in frente:
 
-            if distancia >= data.range_min and distancia < 0.30:
+            if distancia > 0.12 and distancia < 0.30:
                 self.obstaculo = True
 
     def timer_callback(self):
 
-        # Si hay obstáculo, nos paramos
+        # Si hay obstáculo, parar
         if self.obstaculo:
             self.parar()
             return
 
-        # Si el dibujo ha terminado
+        # Si ya ha terminado el 04
         if self.movimiento >= len(self.movimientos):
             self.parar()
             return
@@ -119,10 +125,9 @@ def main(args=None):
     except KeyboardInterrupt:
         pass
 
-    finally:
-        node.parar()
-        node.destroy_node()
-        rclpy.shutdown()
+    node.parar()
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

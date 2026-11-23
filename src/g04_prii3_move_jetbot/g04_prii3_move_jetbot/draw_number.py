@@ -7,23 +7,28 @@ from std_srvs.srv import Trigger
 
 class DrawNumber(Node):
 
+    # Constructor: configura el nodo.
     def __init__(self):
         super().__init__('draw_number')
 
+        # Crea el publisher que enviará movimientos por /cmd_vel.
         self.pub = self.create_publisher(Twist, '/cmd_vel', 10)
 
+        # Crea el servicio para detener el dibujo.
         self.create_service(
             Trigger,
             '/detener_dibujo',
             self.detener
         )
 
+        # Crea el servicio para reanudar el dibujo.
         self.create_service(
             Trigger,
             '/reanudar_dibujo',
             self.reanudar
         )
 
+        # Crea el servicio para reiniciar el dibujo.
         self.create_service(
             Trigger,
             '/reiniciar_dibujo',
@@ -62,25 +67,34 @@ class DrawNumber(Node):
             (0.10, 0.00, 5.00)
         ]
 
+        # Índice del movimiento que se está ejecutando.
         self.movimiento = 0
+
+        # Tiempo acumulado del movimiento actual.
         self.tiempo = 0.0
 
+        # Indica si el dibujo está pausado.
         self.pausado = False
 
+        # Ejecuta timer_callback cada 0.05 segundos.
         self.timer = self.create_timer(
             0.05,
             self.timer_callback
         )
 
+    # Callback del timer: controla la secuencia del 04.
     def timer_callback(self):
 
+        # Si está pausado, no continúa.
         if self.pausado:
             return
 
+        # Si ya no quedan movimientos, detiene el robot.
         if self.movimiento >= len(self.movimientos):
             self.parar()
             return
 
+        # Obtiene el movimiento actual de la lista.
         lineal, angular, duracion = self.movimientos[self.movimiento]
 
         msg = Twist()
@@ -88,17 +102,24 @@ class DrawNumber(Node):
         msg.linear.x = lineal
         msg.angular.z = angular
 
+        # ESTA es la línea que publica el movimiento.
         self.pub.publish(msg)
 
+        # Suma el tiempo transcurrido.
         self.tiempo += 0.05
 
+        # Si termina este movimiento, pasa al siguiente.
         if self.tiempo >= duracion:
 
             self.parar()
 
+            # Avanza al siguiente movimiento.
             self.movimiento += 1
+
+            # Reinicia el tiempo del nuevo movimiento.
             self.tiempo = 0.0
 
+    # Detiene el robot enviando velocidad 0.
     def parar(self):
 
         msg = Twist()
@@ -106,11 +127,15 @@ class DrawNumber(Node):
         msg.linear.x = 0.0
         msg.angular.z = 0.0
 
+        # Publica el mensaje de parada.
         self.pub.publish(msg)
 
+    # Callback del servicio para detener.
     def detener(self, request, response):
 
+        # Activa la pausa.
         self.pausado = True
+
         self.parar()
 
         response.success = True
@@ -118,8 +143,10 @@ class DrawNumber(Node):
 
         return response
 
+    # Callback del servicio para reanudar.
     def reanudar(self, request, response):
 
+        # Quita la pausa y continúa donde estaba.
         self.pausado = False
 
         response.success = True
@@ -127,12 +154,18 @@ class DrawNumber(Node):
 
         return response
 
+    # Callback del servicio para reiniciar.
     def reiniciar(self, request, response):
 
         self.parar()
 
+        # Vuelve al primer movimiento.
         self.movimiento = 0
+
+        # Reinicia el tiempo.
         self.tiempo = 0.0
+
+        # Quita la pausa.
         self.pausado = False
 
         response.success = True
@@ -141,13 +174,16 @@ class DrawNumber(Node):
         return response
 
 
+# Función principal: inicia ROS y mantiene el nodo activo.
 def main(args=None):
 
     rclpy.init(args=args)
 
+    # Crea el nodo y ejecuta su constructor.
     node = DrawNumber()
 
     try:
+        # Mantiene el nodo activo para ejecutar callbacks.
         rclpy.spin(node)
 
     except KeyboardInterrupt:

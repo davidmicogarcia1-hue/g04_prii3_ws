@@ -85,7 +85,7 @@ El ordenador y el robot deben utilizar el mismo `ROS_DOMAIN_ID`.
 g04_prii3_turtlesim
 ```
 
-En este Sprint se utiliza `turtlesim` para realizar un movimiento autónomo que dibuja el número del grupo:
+Se utiliza `turtlesim` para realizar un movimiento autónomo que dibuja el número del grupo:
 
 ```text
 04
@@ -144,14 +144,6 @@ collision_avoidance
 
 # Sprint 2 - TurtleBot3 en simulación
 
-## Preparación
-
-Si TurtleBot3 no está instalado:
-
-```bash
-sudo apt install ros-humble-turtlebot3*
-```
-
 Seleccionar TurtleBot3 Waffle:
 
 ```bash
@@ -164,168 +156,22 @@ Abrir Gazebo:
 ros2 launch turtlebot3_gazebo empty_world.launch.py
 ```
 
-En otra terminal:
-
-```bash
-cd ~/g04_prii3_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-source ~/.bashrc
-```
-
 ## Draw Number
-
-Ejecutar:
 
 ```bash
 ros2 run g04_prii3_move_turtlebot draw_number
 ```
 
-El TurtleBot realiza automáticamente una trayectoria con forma de:
+El TurtleBot realiza automáticamente:
 
 ```text
 04
 ```
 
-### Servicios
-
-Detener:
-
-```bash
-ros2 service call /detener_dibujo std_srvs/srv/Trigger "{}"
-```
-
-Reanudar:
-
-```bash
-ros2 service call /reanudar_dibujo std_srvs/srv/Trigger "{}"
-```
-
-Reiniciar:
-
-```bash
-ros2 service call /reiniciar_dibujo std_srvs/srv/Trigger "{}"
-```
-
 ## Collision Avoidance
-
-Ejecutar:
 
 ```bash
 ros2 run g04_prii3_move_turtlebot collision_avoidance
-```
-
-El nodo utiliza el LiDAR mediante:
-
-```text
-/scan
-```
-
-El TurtleBot sigue realizando el número `04`.
-
-Si detecta un obstáculo delante:
-
-```text
-TurtleBot → se detiene
-```
-
-Cuando el obstáculo desaparece:
-
-```text
-TurtleBot → continúa desde el punto donde se había detenido
-```
-
----
-
-# Sprint 2 - JetBot real
-
-## Conexión al robot
-
-El ordenador y el JetBot deben estar conectados a la misma red.
-
-Se puede conectar mediante SSH:
-
-```bash
-ssh jetbot@IP_DEL_ROBOT
-```
-
-También se puede utilizar **VS Code Remote-SSH**.
-
-El workspace del JetBot es:
-
-```text
-/home/jetbot/ros2_ws
-```
-
-## Preparación del JetBot
-
-En cada terminal del JetBot:
-
-```bash
-source /opt/ros/humble/setup.bash
-source ~/ros2_ws/install/setup.bash
-source ~/.bashrc
-```
-
-Comprobar el dominio:
-
-```bash
-echo $ROS_DOMAIN_ID
-```
-
-Debe aparecer:
-
-```text
-157
-```
-
-## Preparación del ordenador
-
-```bash
-cd ~/g04_prii3_ws
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-source ~/.bashrc
-```
-
-## Draw Number
-
-```bash
-ros2 run g04_prii3_move_jetbot draw_number
-```
-
-El JetBot realiza automáticamente:
-
-```text
-04
-```
-
-### Servicios
-
-Detener:
-
-```bash
-ros2 service call /detener_dibujo std_srvs/srv/Trigger "{}"
-```
-
-Reanudar:
-
-```bash
-ros2 service call /reanudar_dibujo std_srvs/srv/Trigger "{}"
-```
-
-Reiniciar:
-
-```bash
-ros2 service call /reiniciar_dibujo std_srvs/srv/Trigger "{}"
-```
-
-Para repetir exactamente el recorrido se debe volver a colocar físicamente el robot en la posición inicial.
-
-## Collision Avoidance
-
-```bash
-ros2 run g04_prii3_move_jetbot collision_avoidance
 ```
 
 El nodo utiliza:
@@ -337,20 +183,66 @@ El nodo utiliza:
 Cuando detecta un obstáculo:
 
 ```text
-JetBot → se detiene
+TurtleBot → se detiene
 ```
 
 Cuando desaparece:
 
 ```text
-JetBot → continúa
+TurtleBot → continúa
+```
+
+---
+
+# Sprint 2 - JetBot real
+
+## Conexión
+
+El ordenador y el JetBot deben encontrarse en la misma red.
+
+```bash
+ssh jetbot@IP_DEL_ROBOT
+```
+
+También se puede utilizar VS Code Remote-SSH.
+
+Workspace del JetBot:
+
+```text
+/home/jetbot/ros2_ws
+```
+
+## Preparación
+
+```bash
+source /opt/ros/humble/setup.bash
+source ~/ros2_ws/install/setup.bash
+source ~/.bashrc
+```
+
+## Draw Number
+
+```bash
+ros2 run g04_prii3_move_jetbot draw_number
+```
+
+## Collision Avoidance
+
+```bash
+ros2 run g04_prii3_move_jetbot collision_avoidance
+```
+
+El LiDAR utiliza:
+
+```text
+/scan
 ```
 
 ---
 
 # Sprint 3 - Navegación
 
-En el Sprint 3 se trabaja con:
+El Sprint 3 implementa navegación y localización utilizando:
 
 - Gazebo
 - RViz
@@ -361,28 +253,23 @@ En el Sprint 3 se trabaja con:
 - OpenCV
 - Marcadores ArUco
 
-Paquete utilizado para la simulación:
+Paquete principal de simulación:
 
 ```text
 g04_prii3_nav_turtlebot
 ```
 
-Actualmente se han realizado:
+Se han implementado:
 
 ```text
 PBI 3.2 - Navegación guiada mediante RViz
-PBI 3.4 - Navegación autónoma
-Detección de ArUcos
-Selección de destino según el ID del ArUco
+PBI 3.3 - Navegación predefinida
+PBI 3.4 - Navegación autónoma mediante ArUco
 ```
-
-El apartado `predefined_navigation` todavía no está incluido.
 
 ---
 
-# Sprint 3 - Preparación de la simulación
-
-Entrar al workspace:
+# Preparación de la simulación
 
 ```bash
 cd ~/g04_prii3_ws
@@ -391,7 +278,7 @@ source install/setup.bash
 source ~/.bashrc
 ```
 
-Comprobar:
+Comprobar dominio:
 
 ```bash
 echo $ROS_DOMAIN_ID
@@ -403,13 +290,13 @@ Debe devolver:
 157
 ```
 
-Seleccionar TurtleBot3 Waffle:
+Seleccionar modelo:
 
 ```bash
 export TURTLEBOT3_MODEL=waffle
 ```
 
-Añadir los modelos de Gazebo:
+Añadir modelos de Gazebo:
 
 ```bash
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$HOME/g04_prii3_ws/src/f1l3_gazebo/models:/opt/ros/humble/share/turtlebot3_gazebo/models
@@ -417,9 +304,9 @@ export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$HOME/g04_prii3_ws/src/f1l3_gazebo/m
 
 ---
 
-# PBI 3.2 - Navegación guiada con RViz
+# PBI 3.2 - Navegación guiada mediante RViz
 
-Para este apartado se utiliza un launch independiente:
+Launch:
 
 ```text
 pbi_3_2_rviz.launch.py
@@ -431,32 +318,30 @@ Ejecutar:
 ros2 launch g04_prii3_nav_turtlebot pbi_3_2_rviz.launch.py
 ```
 
-El launch inicia el entorno necesario para realizar la navegación guiada.
-
 En RViz:
 
 1. Seleccionar `2D Pose Estimate`.
-2. Indicar la posición inicial del robot.
-3. Indicar también su orientación.
-4. Seleccionar `Nav2 Goal`.
-5. Marcar una pose objetivo.
-6. Nav2 calcula la ruta y mueve el TurtleBot hasta el destino.
+2. Indicar posición y orientación inicial.
+3. Seleccionar `Nav2 Goal`.
+4. Marcar una pose destino.
+5. Navigation2 calcula la trayectoria.
+6. El robot navega hasta el objetivo.
 
-La idea general es:
+Flujo:
 
 ```text
 RViz
-  ↓
-Pose inicial
-  ↓
+ ↓
+2D Pose Estimate
+ ↓
 AMCL
-  ↓
+ ↓
 Robot localizado
-  ↓
+ ↓
 Nav2 Goal
-  ↓
+ ↓
 Navigation2
-  ↓
+ ↓
 TurtleBot3
 ```
 
@@ -464,9 +349,9 @@ TurtleBot3
 
 # AMCL
 
-AMCL se utiliza para estimar la posición del robot dentro de un mapa conocido.
+AMCL permite estimar dónde está el robot dentro del mapa.
 
-Para ello intervienen principalmente:
+Intervienen:
 
 ```text
 /map
@@ -475,28 +360,22 @@ Para ello intervienen principalmente:
 /amcl_pose
 ```
 
-La pose inicial se envía mediante:
+La pose inicial se publica en:
 
 ```text
 /initialpose
 ```
 
-con mensajes:
+Tipo:
 
 ```text
 geometry_msgs/msg/PoseWithCovarianceStamped
 ```
 
-AMCL publica la posición estimada mediante:
+AMCL publica su estimación mediante:
 
 ```text
 /amcl_pose
-```
-
-también utilizando:
-
-```text
-geometry_msgs/msg/PoseWithCovarianceStamped
 ```
 
 Conceptualmente:
@@ -506,38 +385,110 @@ Mapa + LiDAR + odometría
           ↓
          AMCL
           ↓
-Posición estimada del robot
+Posición estimada
 ```
 
-AMCL se encarga de saber:
+AMCL responde:
 
 ```text
-¿Dónde está el robot dentro del mapa?
+¿Dónde está el robot?
 ```
 
-Navigation2 se encarga de:
+Navigation2 responde:
 
 ```text
-¿Cómo llegar hasta el destino?
+¿Cómo llegar al destino?
 ```
+
+---
+
+# PBI 3.3 - Navegación predefinida
+
+Nodo:
+
+```text
+predefined_navigation
+```
+
+Archivo:
+
+```text
+predefined_navigation.py
+```
+
+Launch:
+
+```text
+pbi_3_3_predefined.launch.py
+```
+
+Ejecutar:
+
+```bash
+ros2 launch g04_prii3_nav_turtlebot pbi_3_3_predefined.launch.py
+```
+
+El nodo lleva al TurtleBot desde una pose inicial predefinida en el pasillo hasta una pose final predefinida dentro del laboratorio.
+
+## Pose inicial
+
+```text
+x = -0.6283862590789795
+y = -5.823587417602539
+gamma = -0.014495306414798126
+```
+
+## Pose final
+
+```text
+x = 2.169
+y = 8.444
+gamma = 1.332
+```
+
+El funcionamiento es:
+
+```text
+Pose inicial predefinida
+        ↓
+/initialpose
+        ↓
+AMCL
+        ↓
+Robot localizado
+        ↓
+NavigateToPose
+        ↓
+Pose final predefinida
+```
+
+El nodo utiliza:
+
+```text
+/amcl_pose
+/initialpose
+navigate_to_pose
+```
+
+La navegación se realiza automáticamente sin seleccionar el destino manualmente desde RViz.
 
 ---
 
 # PBI 3.4 - Navegación autónoma
 
-La navegación autónoma utiliza dos nodos propios:
+La navegación autónoma utiliza:
 
 ```text
 autonomous_navigation
 aruco_destination
 ```
 
-La secuencia general es:
+Secuencia:
 
 ```text
 Pose inicial
      ↓
-AMCL localiza el robot
+AMCL localiza
      ↓
 Navegación hasta la puerta
      ↓
@@ -552,16 +503,6 @@ Navegación hasta la pose final
 
 # autonomous_navigation
 
-El nodo:
-
-```text
-autonomous_navigation
-```
-
-coordina la navegación.
-
-## Suscripciones
-
 Está suscrito a:
 
 ```text
@@ -569,79 +510,36 @@ Está suscrito a:
 /destino_aruco
 ```
 
-### /amcl_pose
-
-Se utiliza para comprobar que AMCL ya está proporcionando una localización del robot.
-
-Cuando llega un mensaje:
-
-```text
-self.localizado = True
-```
-
-### /destino_aruco
-
-Recibe la pose final asociada al marcador detectado.
-
-Tipo:
-
-```text
-geometry_msgs/msg/Pose2D
-```
-
-## Publicaciones
-
-El nodo publica:
+Publica:
 
 ```text
 /initialpose
 ```
 
-para indicar a AMCL la posición inicial aproximada del robot.
-
-## Navegación
-
-Se utiliza un:
-
-```text
-ActionClient
-```
-
-con la acción:
+Utiliza:
 
 ```text
 nav2_msgs/action/NavigateToPose
 ```
 
-y el servidor:
+mediante:
 
 ```text
 navigate_to_pose
 ```
 
-El objetivo contiene:
+El nodo:
 
-```text
-x
-y
-orientación
-```
-
-Navigation2 recibe el objetivo y se encarga de calcular y ejecutar la navegación.
+1. Publica la pose inicial.
+2. Espera a AMCL.
+3. Navega hasta la puerta.
+4. Espera un destino procedente del detector ArUco.
+5. Envía ese destino a Navigation2.
+6. Navega hasta la pose final.
 
 ---
 
 # aruco_destination
-
-El nodo:
-
-```text
-aruco_destination
-```
-
-se encarga de procesar las imágenes de la cámara y detectar los ArUcos.
-
-## Suscripción
 
 Está suscrito a:
 
@@ -649,33 +547,31 @@ Está suscrito a:
 /camera/image_raw
 ```
 
-Tipo de mensaje:
+Tipo:
 
 ```text
 sensor_msgs/msg/Image
 ```
 
-La imagen ROS se convierte a OpenCV mediante:
+La imagen se convierte a OpenCV mediante:
 
 ```text
 CvBridge
 ```
 
-Después se convierte a escala de grises y se realiza la detección de ArUcos.
+Después se detecta el marcador ArUco y se obtiene su ID.
 
 ---
 
 # Destinos ArUco
 
-Actualmente se utilizan tres IDs:
+IDs utilizados:
 
 ```text
 5
 6
 17
 ```
-
-Cada ID tiene asociada una pose.
 
 ## ID 5
 
@@ -701,9 +597,9 @@ y = 8.444
 gamma = 1.332
 ```
 
-El ArUco solamente proporciona el ID.
+El ArUco proporciona el ID.
 
-Las coordenadas están asociadas al ID dentro del programa:
+Las coordenadas se obtienen mediante:
 
 ```text
 DESTINOS[id_aruco]
@@ -713,7 +609,7 @@ DESTINOS[id_aruco]
 
 # /destino_aruco
 
-Cuando se detecta un marcador válido se publica:
+El nodo `aruco_destination` publica:
 
 ```text
 /destino_aruco
@@ -725,7 +621,7 @@ Tipo:
 geometry_msgs/msg/Pose2D
 ```
 
-El mensaje contiene:
+Contiene:
 
 ```text
 x
@@ -733,16 +629,14 @@ y
 theta
 ```
 
-donde `theta` representa la orientación del robot.
-
-La comunicación entre los nodos es:
+Flujo:
 
 ```text
 /camera/image_raw
         ↓
 aruco_destination
         ↓
-detección del ID
+ID ArUco
         ↓
 DESTINOS[id]
         ↓
@@ -752,14 +646,12 @@ autonomous_navigation
         ↓
 NavigateToPose
         ↓
-Nav2
+Navigation2
 ```
 
 ---
 
-# Ejecución de la navegación autónoma
-
-Preparar la terminal:
+# Ejecución de navegación autónoma
 
 ```bash
 cd ~/g04_prii3_ws
@@ -768,13 +660,9 @@ source install/setup.bash
 source ~/.bashrc
 ```
 
-Seleccionar el modelo:
-
 ```bash
 export TURTLEBOT3_MODEL=waffle
 ```
-
-Añadir modelos:
 
 ```bash
 export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:$HOME/g04_prii3_ws/src/f1l3_gazebo/models:/opt/ros/humble/share/turtlebot3_gazebo/models
@@ -800,7 +688,7 @@ ros2 launch g04_prii3_nav_turtlebot autonomous_demo.launch.py
 /cmd_vel
 ```
 
-## Tipos de mensajes
+Tipos:
 
 ```text
 /map
@@ -837,7 +725,7 @@ geometry_msgs/msg/Pose2D
 geometry_msgs/msg/Twist
 ```
 
-Acción utilizada para navegación:
+Acción:
 
 ```text
 navigate_to_pose
@@ -848,23 +736,21 @@ nav2_msgs/action/NavigateToPose
 
 # Sprint 3 - JetBot físico
 
-Para trabajar con el JetBot físico se utiliza el workspace:
+Workspace:
 
 ```text
 /home/jetbot/ros2_ws
 ```
 
-La comunicación entre el ordenador y el JetBot utiliza:
+Dominio:
 
 ```text
 ROS_DOMAIN_ID=157
 ```
 
-El PC y el JetBot deben estar conectados a la misma red.
+El PC y el JetBot deben estar en la misma red.
 
 ## Nodo base
-
-En una terminal SSH:
 
 ```bash
 source /opt/ros/humble/setup.bash
@@ -876,26 +762,20 @@ ros2 run jetbot_pro_ros2 jetbot
 
 ## LiDAR
 
-En otra terminal:
-
 ```bash
-source /opt/ros/humble/setup.bash
-source ~/ros2_ws/install/setup.bash
-source ~/.bashrc
-
 ros2 run rplidar_ros rplidar_composition --ros-args \
 -p serial_port:=/dev/ttyACM1 \
 -p serial_baudrate:=115200 \
 -p frame_id:=laser_frame
 ```
 
-El LiDAR publica:
+Publica:
 
 ```text
 /scan
 ```
 
-## Transformación del LiDAR
+## TF LiDAR
 
 ```bash
 ros2 run tf2_ros static_transform_publisher \
@@ -903,7 +783,7 @@ ros2 run tf2_ros static_transform_publisher \
 base_link laser_frame
 ```
 
-La cadena de transformaciones utilizada es:
+Cadena:
 
 ```text
 odom
@@ -913,9 +793,11 @@ base_link
 laser_frame
 ```
 
-## Mapa
+---
 
-Los archivos utilizados en el JetBot son:
+# Mapa físico
+
+Archivos:
 
 ```text
 /home/jetbot/map.yaml
@@ -937,21 +819,9 @@ ros2 lifecycle set /map_server configure
 ros2 lifecycle set /map_server activate
 ```
 
-Comprobar:
+---
 
-```bash
-ros2 lifecycle get /map_server
-```
-
-Debe aparecer:
-
-```text
-active [3]
-```
-
-## AMCL físico
-
-Ejecutar:
+# AMCL físico
 
 ```bash
 ros2 run nav2_amcl amcl --ros-args \
@@ -964,18 +834,6 @@ Activar:
 ```bash
 ros2 lifecycle set /amcl configure
 ros2 lifecycle set /amcl activate
-```
-
-Comprobar:
-
-```bash
-ros2 lifecycle get /amcl
-```
-
-Debe aparecer:
-
-```text
-active [3]
 ```
 
 AMCL está suscrito a:
@@ -993,7 +851,9 @@ y publica:
 /tf
 ```
 
-## RViz desde el ordenador
+---
+
+# RViz físico
 
 En el PC:
 
@@ -1004,58 +864,12 @@ source /opt/ros/humble/setup.bash
 rviz2 -d ~/nav2.rviz
 ```
 
-El mapa utilizado tiene:
+Mapa:
 
 ```text
 Resolución: 0.05 m/píxel
 Tamaño: 546 x 540
 ```
-
-Desde RViz se utiliza:
-
-```text
-2D Pose Estimate
-```
-
-para enviar la posición inicial mediante:
-
-```text
-/initialpose
-```
-
----
-
-# Estado actual del Sprint 3 físico
-
-Actualmente se ha comprobado:
-
-```text
-Nodo base JetBot funcionando
-LiDAR funcionando
-/scan funcionando
-TF odom -> base_link
-TF base_link -> laser_frame
-Mapa cargado
-map_server activo
-/map publicado
-AMCL activo
-RViz conectado al JetBot
-/initialpose enviado desde RViz
-```
-
-El siguiente paso es terminar de comprobar la localización mediante:
-
-```text
-/amcl_pose
-```
-
-y la transformación:
-
-```text
-map -> base_link
-```
-
-antes de continuar con la navegación física.
 
 ---
 
@@ -1070,10 +884,14 @@ g04_prii3_ws/
 │   ├── g04_prii3_move_jetbot/
 │   ├── g04_prii3_nav_turtlebot/
 │   │   ├── launch/
+│   │   │   ├── autonomous_demo.launch.py
+│   │   │   ├── pbi_3_2_rviz.launch.py
+│   │   │   └── pbi_3_3_predefined.launch.py
 │   │   ├── maps/
 │   │   └── g04_prii3_nav_turtlebot/
 │   │       ├── autonomous_navigation.py
-│   │       └── aruco_destination.py
+│   │       ├── aruco_destination.py
+│   │       └── predefined_navigation.py
 │   │
 │   └── f1l3_gazebo/
 │
@@ -1081,7 +899,7 @@ g04_prii3_ws/
 └── README.md
 ```
 
-Las carpetas generadas durante la compilación:
+Las carpetas:
 
 ```text
 build/
@@ -1089,4 +907,4 @@ install/
 log/
 ```
 
-no deben almacenarse en el repositorio Git.
+no deben almacenarse en Git.
